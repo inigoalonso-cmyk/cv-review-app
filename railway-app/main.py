@@ -29,6 +29,9 @@ import docx2txt
 UPLOAD_DIR = pathlib.Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
+STATIC_DIR = pathlib.Path("static")
+STATIC_DIR.mkdir(exist_ok=True)
+
 WORKFLOW_TRIGGER_URL = os.environ.get("WORKFLOW_TRIGGER_URL", "").strip()
 ALLOWED_EXT = {".pdf", ".docx", ".doc"}
 MAX_BYTES = 10 * 1024 * 1024  # 10 MB
@@ -49,6 +52,7 @@ COUNTRIES = [
 
 app = FastAPI(title="CV Review Registration")
 app.mount("/files", StaticFiles(directory=str(UPLOAD_DIR)), name="files")
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 def extract_text(path: pathlib.Path, ext: str) -> str:
@@ -100,51 +104,44 @@ PAGE_HEAD = """<!doctype html>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0a0a0a; --muted:#6b6b6b; --line:#e6e6e3; --bg:#f4f3f0;
-    --card:#ffffff; --accent:#0a0a0a;
+    --ink:#2b2620; --muted:#8a8275; --line:#d9cfbd;
+    --card:#ece3d2; --field:#f6f0e4; --accent:#2b2620;
   }
   *{box-sizing:border-box;}
   body{margin:0;font-family:'Inter',-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-       color:var(--ink);background:var(--bg);min-height:100vh;
-       display:flex;flex-direction:column;align-items:center;}
-  .nav{width:100%;display:flex;align-items:center;gap:10px;padding:22px 28px;}
-  .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--ink);
-             display:flex;align-items:center;justify-content:center;}
-  .logo-mark span{color:#fff;font-weight:700;font-size:15px;line-height:1;}
-  .logo-word{font-weight:600;font-size:17px;letter-spacing:-.01em;}
+       color:var(--ink);min-height:100vh;
+       background:#2b2825 url('/static/bg.png') center center / cover no-repeat fixed;
+       display:flex;flex-direction:column;align-items:center;justify-content:center;}
   .wrap{flex:1;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:20px;
-        padding:40px;width:100%;max-width:480px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+        padding:40px;width:100%;max-width:470px;
+        box-shadow:0 24px 60px rgba(0,0,0,.45);}
   .eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
            color:var(--muted);margin:0 0 10px;}
   h1{font-size:32px;line-height:1.1;letter-spacing:-.02em;margin:0 0 8px;font-weight:600;}
   h1 em{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;}
-  p.sub{color:var(--muted);margin:0 0 28px;font-size:15px;line-height:1.5;}
+  p.sub{color:#6f665a;margin:0 0 28px;font-size:15px;line-height:1.5;}
   label{display:block;font-size:13px;font-weight:600;margin:18px 0 7px;}
   input[type=text],input[type=tel],select{width:100%;padding:12px 13px;font-size:15px;
-        font-family:inherit;border:1px solid var(--line);border-radius:11px;background:#fff;
+        font-family:inherit;border:1px solid var(--line);border-radius:11px;background:var(--field);
         color:var(--ink);outline:none;transition:border-color .15s;}
   input:focus,select:focus{border-color:var(--ink);}
   .phone-row{display:flex;gap:10px;}
   .phone-row select{flex:0 0 42%;}
   .phone-row input{flex:1;}
   .file-field{margin-top:7px;border:1px dashed var(--line);border-radius:11px;padding:14px;
-              background:#fafafa;}
+              background:var(--field);}
   .file-field input{font-size:14px;width:100%;}
   .hint{color:var(--muted);font-size:12px;margin-top:7px;}
   button{margin-top:28px;width:100%;padding:14px;font-size:15px;font-weight:600;
-         color:#fff;background:var(--accent);border:none;border-radius:12px;cursor:pointer;
+         color:#f6f0e4;background:var(--accent);border:none;border-radius:12px;cursor:pointer;
          transition:opacity .15s;}
   button:hover{opacity:.88;}
   button:disabled{opacity:.5;cursor:default;}
-  .foot{color:var(--muted);font-size:12px;padding:20px;}
+  .foot{color:rgba(246,240,228,.6);font-size:12px;padding:20px;text-align:center;}
 </style>
 </head>
 <body>
-  <div class="nav">
-    <div class="logo-mark"><span>H</span></div>
-    <div class="logo-word">HappyRobot</div>
-  </div>
   <div class="wrap">
 """
 
